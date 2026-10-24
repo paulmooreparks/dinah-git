@@ -98,6 +98,11 @@ func testHost(t *testing.T, repo string) *extension.Host {
 func fixture(t *testing.T) (string, *extension.Host) {
 	t.Helper()
 	repo := t.TempDir()
+	canonical, err := filepath.EvalSymlinks(repo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo = canonical
 	runGit(t, repo, "init", "-b", "main")
 	runGit(t, repo, "config", "user.name", "Fixture")
 	runGit(t, repo, "config", "user.email", "fixture@example.invalid")
@@ -161,12 +166,14 @@ func TestRepositoryOperations(t *testing.T) {
 }
 
 func TestNonUTF8FilenameThroughHostProtocol(t *testing.T) {
-	if runtime.GOOS == "windows" {
-		t.Skip("Windows filenames use UTF-16")
+	if runtime.GOOS != "linux" {
+		t.Skip("raw-byte filesystem regression runs on Linux; JSON byte tests run on every platform")
 	}
 	repo, h := fixture(t)
 	name := "invalid-\xff.txt"
-	os.WriteFile(filepath.Join(repo, name), []byte("content\n"), 0600)
+	if err := os.WriteFile(filepath.Join(repo, name), []byte("content\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
 	engine := New()
 	value, err := engine.Call(context.Background(), h, "status", Request{Repo: repo})
 	if err != nil {
