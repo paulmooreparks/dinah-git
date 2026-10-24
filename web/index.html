@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Git</title>
+<link rel="stylesheet" href="/pudl/pudl.css"><link rel="stylesheet" href="git.css">
+<script defer src="/extension-sdk/dinah-extension.js"></script>
+<script defer src="/pudl/pudl-menu.js"></script><script defer src="/pudl/pudl-fields.js"></script>
+<script defer src="/pudl/pudl-md.js"></script><script defer src="git.js"></script>
+</head><body>
+<main data-extension-focus tabindex="-1">
+ <header class="toolbar" aria-label="Repository">
+  <label>Repository <select id="repository" aria-label="Repository"></select></label>
+  <button id="refresh" type="button">Refresh</button><button id="operations" type="button">Repository Actions</button>
+ </header>
+ <p id="summary" class="muted"></p><p id="notice" role="status" aria-live="polite"></p>
+ <nav id="sections" aria-label="Git sections"></nav>
+ <section class="md-layout" data-md-pane="list" id="layout">
+  <div class="md-sidebar-head"><strong id="list-title">Changes</strong></div>
+  <div class="md-sidebar" id="list" aria-label="Repository items"></div>
+  <article class="md-detail" id="detail"><button class="md-back" type="button">Back to list</button><div id="content"></div></article>
+ </section>
+ <form id="commit-form"><label for="message">Commit message</label><textarea id="message" rows="3" required></textarea>
+  <div class="toolbar"><label class="check"><input type="checkbox" id="amend">Amend last commit</label><button type="submit">Commit staged changes</button></div>
+ </form>
+</main>
+<dialog id="action-dialog"><form id="action-form"><h2 id="action-title"></h2><p id="action-help"></p><div id="action-fields"></div><p id="action-error" role="alert"></p><footer class="toolbar"><button type="button" id="cancel-action">Cancel</button><button type="submit" id="confirm-action">Continue</button></footer></form></dialog>
+</body></html>
