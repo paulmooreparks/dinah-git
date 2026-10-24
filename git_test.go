@@ -29,6 +29,11 @@ func runGit(t *testing.T, repo string, args ...string) string {
 }
 func testHost(t *testing.T, repo string) *extension.Host {
 	t.Helper()
+	canonical, err := filepath.EvalSymlinks(repo)
+	if err != nil {
+		t.Fatal(err)
+	}
+	repo = canonical
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Authorization") != "Bearer fixture" {
 			http.Error(w, "no scope", 403)
@@ -56,7 +61,12 @@ func testHost(t *testing.T, repo string) *extension.Host {
 		}
 		var in extension.RunInput
 		json.Unmarshal(request.Input, &in)
-		relative, err := filepath.Rel(repo, in.Cwd)
+		cwd, err := filepath.EvalSymlinks(in.Cwd)
+		if err != nil {
+			json.NewEncoder(w).Encode(extension.HostResponse{Error: err.Error()})
+			return
+		}
+		relative, err := filepath.Rel(repo, cwd)
 		if err != nil || strings.HasPrefix(relative, "..") {
 			json.NewEncoder(w).Encode(extension.HostResponse{Error: "outside fixture workspace"})
 			return
